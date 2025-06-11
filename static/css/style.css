@@ -1,0 +1,103 @@
+:root {
+    --color-primary: #386641;
+    --color-background: #F2F4F3;
+    --color-accent: #A68A5A;
+}
+
+body {
+    font-family: 'PT Sans', sans-serif;
+    background-color: var(--color-background);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Alegreya', serif;
+    color: var(--color-primary);
+}
+
+.navbar {
+    background-color: var(--color-primary);
+}
+
+.navbar-brand {
+    font-family: 'Alegreya', serif;
+    font-weight: 700;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.card-title {
+    color: var(--color-primary);
+    font-family: 'Alegreya', serif;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.btn-primary:hover {
+    background-color: #2d4f33;
+    border-color: #2d4f33;
+}
+
+.btn-warning {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: white;
+}
+
+.btn-warning:hover {
+    background-color: #8b6f48;
+    border-color: #8b6f48;
+    color: white;
+}
+
+.table th {
+    color: var(--color-primary);
+    font-family: 'Alegreya', serif;
+}
+
+.footer {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+/* Form styling */
+.form-label {
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.form-control:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 0.2rem rgba(166, 138, 90, 0.25);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .display-6 {
+        font-size: 1.5rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+    
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .btn-group .btn {
+        width: 100%;
+    }
+} 
