@@ -55,6 +55,7 @@ class PembayarZakat(db.Model):
     email = db.Column(db.String(100))
     jenis_zakat = db.Column(db.String(50), nullable=False)
     jumlah_zakat = db.Column(db.Float, nullable=False)
+    metode_pembayaran = db.Column(db.String(50), nullable=False, default='Tunai')
     tanggal_ditambahkan = db.Column(db.DateTime, default=datetime.utcnow)
 
 # Fungsi untuk memastikan database dibuat dengan benar
@@ -100,7 +101,8 @@ def tambah_pembayar():
                 nomor_telepon=request.form['nomor_telepon'],
                 email=request.form['email'],
                 jenis_zakat=request.form['jenis_zakat'],
-                jumlah_zakat=float(request.form['jumlah_zakat'])
+                jumlah_zakat=float(request.form['jumlah_zakat']),
+                metode_pembayaran=request.form['metode_pembayaran']
             )
             db.session.add(pembayar)
             db.session.commit()
@@ -120,6 +122,7 @@ def ubah_pembayar(id):
             pembayar.email = request.form['email']
             pembayar.jenis_zakat = request.form['jenis_zakat']
             pembayar.jumlah_zakat = float(request.form['jumlah_zakat'])
+            pembayar.metode_pembayaran = request.form['metode_pembayaran']
             db.session.commit()
             flash('Data pembayar berhasil diperbarui!', 'success')
             return redirect(url_for('index'))

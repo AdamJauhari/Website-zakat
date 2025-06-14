@@ -64,6 +64,21 @@
                         </div>
                     </div>
 
+                    <div class="mb-3">
+                        <label for="metode_pembayaran" class="form-label">Metode Pembayaran</label>
+                        <select class="form-control" id="metode_pembayaran" name="metode_pembayaran" required>
+                            <option value="">-- Pilih Metode Pembayaran --</option>
+                            <option value="Tunai" {% if pembayar and pembayar.metode_pembayaran == 'Tunai' %}selected{% endif %}>Tunai</option>
+                            <option value="Transfer Bank" {% if pembayar and pembayar.metode_pembayaran == 'Transfer Bank' %}selected{% endif %}>Transfer Bank</option>
+                            <option value="QRIS" {% if pembayar and pembayar.metode_pembayaran == 'QRIS' %}selected{% endif %}>QRIS</option>
+                            <option value="E-Wallet" {% if pembayar and pembayar.metode_pembayaran == 'E-Wallet' %}selected{% endif %}>E-Wallet</option>
+                            <option value="Lainnya" {% if pembayar and pembayar.metode_pembayaran == 'Lainnya' %}selected{% endif %}>Lainnya</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Metode pembayaran harus dipilih.
+                        </div>
+                    </div>
+
                     <div class="d-flex justify-content-between">
                         <a href="{{ url_for('index') }}" class="btn btn-secondary">Kembali</a>
                         <button type="submit" class="btn btn-primary">

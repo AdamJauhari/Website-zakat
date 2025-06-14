@@ -37,6 +37,7 @@
                 <th>Email</th>
                 <th>Jenis Zakat</th>
                 <th>Jumlah Zakat</th>
+                <th>Metode Pembayaran</th>
                 <th>Tanggal Ditambahkan</th>
                 <th>Aksi</th>
             </tr>
@@ -49,6 +50,7 @@
                 <td>{{ p.email or '-' }}</td>
                 <td>{{ p.jenis_zakat }}</td>
                 <td>Rp {{ "{:,.2f}".format(p.jumlah_zakat) }}</td>
+                <td>{{ p.metode_pembayaran }}</td>
                 <td>{{ p.tanggal_ditambahkan.strftime('%d/%m/%Y') }}</td>
                 <td>
                     <div class="btn-group">
