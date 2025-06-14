@@ -3,6 +3,9 @@ import subprocess
 import os
 import shutil
 import sqlite3
+import io
+import pandas as pd
+from flask import send_file
 
 # Cek versi Python
 if sys.version_info >= (3, 13):
@@ -28,15 +31,16 @@ from datetime import datetime
 import os
 
 # Hapus direktori instance jika ada
-instance_dir = 'instance'
-if os.path.exists(instance_dir):
-    try:
-        shutil.rmtree(instance_dir)
-        print(f"Direktori instance dihapus: {instance_dir}")
-    except Exception as e:
-        print(f"Gagal menghapus direktori instance: {e}")
+# instance_dir = 'instance'
+# if os.path.exists(instance_dir):
+#     try:
+#         shutil.rmtree(instance_dir)
+#         print(f"Direktori instance dihapus: {instance_dir}")
+#     except Exception as e:
+#         print(f"Gagal menghapus direktori instance: {e}")
     
 # Buat direktori instance baru
+instance_dir = 'instance'
 os.makedirs(instance_dir, exist_ok=True)
 
 app = Flask(__name__)
@@ -100,7 +104,7 @@ def reset_database():
         conn.close()
 
 # Reset database saat aplikasi dimulai
-reset_database()
+# reset_database()
 
 @app.route('/beras_data')
 def beras_data():
@@ -139,27 +143,29 @@ def tambah_pembayar():
             jenis_zakat = request.form['jenis_zakat']
 
             jumlah_zakat_value = 0.0
-            if 'jumlah_zakat' in request.form and request.form['jumlah_zakat']:
-                jumlah_zakat_value = float(request.form['jumlah_zakat'])
-
             jumlah_beras_value = None
-            if jenis_zakat == 'Zakat Beras' and 'jumlah_beras' in request.form and request.form['jumlah_beras']:
-                jumlah_beras_value = float(request.form['jumlah_beras'])
-
             selected_harga_beras_id = None
-            if jenis_zakat == 'Zakat Beras' and 'selected_harga_beras' in request.form and request.form['selected_harga_beras']:
-                selected_harga_beras_id = int(request.form['selected_harga_beras'])
-            
-            tanggal_bayar_str = request.form['tanggal_bayar']
-            tanggal_bayar_obj = datetime.strptime(tanggal_bayar_str, '%Y-%m-%d').date() if tanggal_bayar_str else datetime.utcnow().date()
-
+            jumlah_jiwa_value = 1
             nominal_dibayar_value = None
-            if 'nominal_dibayar' in request.form and request.form['nominal_dibayar']:
-                nominal_dibayar_value = float(request.form['nominal_dibayar'])
-
-            jumlah_jiwa_value = 1 # Default value
             if 'jumlah_jiwa' in request.form and request.form['jumlah_jiwa']:
                 jumlah_jiwa_value = int(request.form['jumlah_jiwa'])
+            if jenis_zakat == 'Zakat Beras':
+                if 'jumlah_beras' in request.form and request.form['jumlah_beras']:
+                    jumlah_beras_value = float(request.form['jumlah_beras'])
+                if 'selected_harga_beras' in request.form and request.form['selected_harga_beras']:
+                    selected_harga_beras_id = int(request.form['selected_harga_beras'])
+                    harga_beras_obj = HargaBeras.query.get(selected_harga_beras_id)
+                    harga_per_kg = harga_beras_obj.harga if harga_beras_obj else 0
+                    jumlah_zakat_value = jumlah_jiwa_value * jumlah_beras_value * harga_per_kg
+                    nominal_dibayar_value = jumlah_zakat_value
+            else:
+                if 'jumlah_zakat' in request.form and request.form['jumlah_zakat']:
+                    jumlah_zakat_value = float(request.form['jumlah_zakat'])
+                if 'nominal_dibayar' in request.form and request.form['nominal_dibayar']:
+                    nominal_dibayar_value = float(request.form['nominal_dibayar'])
+
+            tanggal_bayar_str = request.form['tanggal_bayar']
+            tanggal_bayar_obj = datetime.strptime(tanggal_bayar_str, '%Y-%m-%d').date() if tanggal_bayar_str else datetime.utcnow().date()
 
             pembayar = PembayarZakat(
                 nama=request.form['nama'],
@@ -244,6 +250,31 @@ def hapus_pembayar(id):
 def history_pembayaran():
     pembayar_history = PembayarZakat.query.order_by(PembayarZakat.tanggal_bayar.desc()).all()
     return render_template('history_pembayaran.html', pembayar_history=pembayar_history)
+
+@app.route('/export_excel')
+def export_excel():
+    data = PembayarZakat.query.all()
+    rows = []
+    for p in data:
+        rows.append({
+            'ID': p.id,
+            'Nama': p.nama,
+            'Nomor Telepon': p.nomor_telepon,
+            'Email': p.email,
+            'Jenis Zakat': p.jenis_zakat,
+            'Jumlah Zakat': p.jumlah_zakat,
+            'Jumlah Beras': p.jumlah_beras,
+            'Jumlah Jiwa': p.jumlah_jiwa,
+            'Metode Pembayaran': p.metode_pembayaran,
+            'Tanggal Bayar': p.tanggal_bayar.strftime('%d/%m/%Y'),
+            'Tanggal Ditambahkan': p.tanggal_ditambahkan.strftime('%d/%m/%Y %H:%M'),
+        })
+    df = pd.DataFrame(rows)
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='History Pembayaran')
+    output.seek(0)
+    return send_file(output, download_name='history_pembayaran.xlsx', as_attachment=True)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -20,7 +20,7 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Harga</th>
+                                <th>Harga (Rp/Kg)</th>
                                 <th>Tanggal Ditambahkan</th>
                             </tr>
                         </thead>
@@ -28,7 +28,7 @@
                             {% for harga_beras in harga_beras_list %}
                             <tr>
                                 <td>{{ harga_beras.id }}</td>
-                                <td>Rp {{ "{:,.2f}".format(harga_beras.harga) }}</td>
+                                <td>Rp {{ "{:,.2f}".format(harga_beras.harga) }} / Kg</td>
                                 <td>{{ harga_beras.tanggal_ditambahkan.strftime('%d/%m/%Y %H:%M') }}</td>
                             </tr>
                             {% endfor %}
@@ -44,4 +44,4 @@
         </div>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

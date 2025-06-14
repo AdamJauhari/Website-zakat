@@ -48,4 +48,30 @@ document.addEventListener('DOMContentLoaded', function() {
             e.target.value = value
         })
     }
-}) 
+
+    // Kalkulasi otomatis total bayar dan nominal dibayar untuk zakat beras berdasarkan jumlah jiwa dan jumlah kg
+    const jumlahJiwaInput = document.getElementById('jumlah_jiwa');
+    const jumlahBerasInput = document.getElementById('jumlah_beras');
+    const hargaBerasSelect = document.getElementById('selected_harga_beras');
+    const totalBayarInput = document.getElementById('total_bayar');
+    const nominalDibayarInput = document.getElementById('nominal_dibayar');
+
+    function updateTotalBayarDanNominal() {
+        if (jumlahJiwaInput && jumlahBerasInput && hargaBerasSelect) {
+            const jumlahJiwa = parseInt(jumlahJiwaInput.value) || 0;
+            const jumlahBeras = parseFloat(jumlahBerasInput.value) || 0;
+            const selectedOption = hargaBerasSelect.options[hargaBerasSelect.selectedIndex];
+            const hargaPerKg = selectedOption ? parseFloat(selectedOption.getAttribute('data-harga')) || 0 : 0;
+            const total = jumlahJiwa * jumlahBeras * hargaPerKg;
+            if (totalBayarInput) totalBayarInput.value = total ? total.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '';
+            if (nominalDibayarInput) nominalDibayarInput.value = total ? total.toFixed(2) : '';
+        }
+    }
+
+    if (jumlahJiwaInput) jumlahJiwaInput.addEventListener('input', updateTotalBayarDanNominal);
+    if (jumlahBerasInput) jumlahBerasInput.addEventListener('input', updateTotalBayarDanNominal);
+    if (hargaBerasSelect) hargaBerasSelect.addEventListener('change', updateTotalBayarDanNominal);
+
+    // Inisialisasi saat halaman load
+    updateTotalBayarDanNominal();
+})
