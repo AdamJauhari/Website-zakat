@@ -1,3 +1,24 @@
+import sys
+import subprocess
+
+# Cek versi Python
+if sys.version_info >= (3, 13):
+    print('ERROR: Aplikasi ini belum mendukung Python 3.13 atau lebih baru karena masalah kompatibilitas library SQLAlchemy.')
+    print('Silakan gunakan Python 3.12 atau lebih rendah.')
+    sys.exit(1)
+
+if sys.version_info < (3, 7):
+    print('ERROR: Aplikasi ini membutuhkan minimal Python 3.7.')
+    sys.exit(1)
+
+try:
+    import flask
+except ImportError:
+    print('Flask belum terinstall. Menginstall requirements...')
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt'])
+    print('Requirements terinstall. Silakan jalankan ulang script ini.')
+    sys.exit(1)
+
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -77,4 +98,4 @@ def hapus_pembayar(id):
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(debug=True)

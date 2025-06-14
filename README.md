@@ -90,6 +90,47 @@ manajer-zakat/
    - Tombol "Hapus" dengan konfirmasi
    - Notifikasi sukses/error
 
+## Petunjuk penggunaan environment Python 3.12
+
+### 1. Download & Install Python 3.12
+- Kunjungi https://www.python.org/downloads/release/python-3120/
+- Download installer sesuai OS Anda (Windows/macOS/Linux)
+- Install dan pastikan opsi "Add Python to PATH" dicentang
+
+### 2. Buat Virtual Environment (opsional tapi direkomendasikan)
+Buka terminal di folder project, lalu jalankan:
+
+```
+python -m venv venv
+```
+
+Aktifkan environment:
+- Windows:
+  ```
+  .\venv\Scripts\activate
+  ```
+- macOS/Linux:
+  ```
+  source venv/bin/activate
+  ```
+
+### 3. Install Dependencies
+
+```
+pip install -r requirements.txt
+```
+
+### 4. Jalankan Aplikasi
+
+```
+python app.py
+```
+
+---
+
+> **Catatan:**
+> Jika Anda tetap menggunakan Python 3.13, aplikasi kemungkinan besar tidak akan berjalan karena masalah kompatibilitas library.
+
 ## Lisensi
 
-Hak Cipta © 2024 Manajer Zakat. Hak Cipta Dilindungi. 
+Hak Cipta © 2024 Manajer Zakat. Hak Cipta Dilindungi.

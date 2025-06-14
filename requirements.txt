@@ -1,7 +1,12 @@
 Flask==3.0.0
 Flask-SQLAlchemy==3.1.1
-SQLAlchemy==2.0.23
+# Gunakan versi SQLAlchemy yang stabil dan kompatibel dengan Python 3.7–3.12
+SQLAlchemy>=2.0,<2.1
 Werkzeug==3.0.1
 Jinja2==3.1.2
 itsdangerous==2.1.2
-click==8.1.7 
+click==8.1.7
+
+# Catatan:
+# SQLAlchemy versi 2.0.x kompatibel dengan Python 3.7–3.12
+# Untuk Python 3.13+, tunggu update resmi dari SQLAlchemy
