@@ -1,0 +1,15 @@
+MANIFEST.in
+README.md
+requirements.txt
+setup.py
+zakat.db
+static/css/style.css
+static/js/script.js
+templates/base.html
+templates/form.html
+templates/index.html
+zakat_app.egg-info/PKG-INFO
+zakat_app.egg-info/SOURCES.txt
+zakat_app.egg-info/dependency_links.txt
+zakat_app.egg-info/requires.txt
+zakat_app.egg-info/top_level.txt
