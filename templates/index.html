@@ -27,6 +27,11 @@
     </a>
 </div>
 
+<div class="d-flex justify-content-end mb-4">
+    <a href="{{ url_for('history_pembayaran') }}" class="btn btn-info ms-2">History Pembayaran</a>
+    <a href="{{ url_for('beras_data') }}" class="btn btn-info ms-2">Data Beras</a>
+</div>
+
 {% if pembayar %}
 <div class="table-responsive">
     <table class="table table-striped">
@@ -37,9 +42,10 @@
                 <th>Email</th>
                 <th>Jenis Zakat</th>
                 <th>Jumlah Zakat</th>
+                <th>Jumlah Beras</th>
                 <th>Jumlah Jiwa</th>
                 <th>Metode Pembayaran</th>
-                <th>Tanggal Ditambahkan</th>
+                <th>Tanggal Bayar</th>
                 <th>Aksi</th>
             </tr>
         </thead>
@@ -51,9 +57,10 @@
                 <td>{{ p.email or '-' }}</td>
                 <td>{{ p.jenis_zakat }}</td>
                 <td>Rp {{ "{:,.2f}".format(p.jumlah_zakat) }}</td>
+                <td>{% if p.jenis_zakat == 'Zakat Beras' and p.jumlah_beras %}{{ "{:,.1f}".format(p.jumlah_beras) }} kg{% else %}-{% endif %}</td>
                 <td>{{ p.jumlah_jiwa }}</td>
                 <td>{{ p.metode_pembayaran }}</td>
-                <td>{{ p.tanggal_ditambahkan.strftime('%d/%m/%Y') }}</td>
+                <td>{{ p.tanggal_bayar.strftime('%d/%m/%Y') }}</td>
                 <td>
                     <div class="btn-group">
                         <a href="{{ url_for('ubah_pembayar', id=p.id) }}" class="btn btn-sm btn-warning">Ubah</a>

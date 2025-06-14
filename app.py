@@ -55,8 +55,20 @@ class PembayarZakat(db.Model):
     email = db.Column(db.String(100))
     jenis_zakat = db.Column(db.String(50), nullable=False)
     jumlah_zakat = db.Column(db.Float, nullable=False)
+    jumlah_beras = db.Column(db.Float)
+    selected_harga_beras_id = db.Column(db.Integer, db.ForeignKey('harga_beras.id'))
     jumlah_jiwa = db.Column(db.Integer, nullable=False, default=1)
     metode_pembayaran = db.Column(db.String(50), nullable=False, default='Tunai')
+    tanggal_ditambahkan = db.Column(db.DateTime, default=datetime.utcnow)
+    tanggal_bayar = db.Column(db.Date, default=datetime.utcnow().date())
+    nominal_dibayar = db.Column(db.Float, nullable=True)
+
+    selected_harga_beras = db.relationship('HargaBeras', backref='pembayar_zakat')
+
+class HargaBeras(db.Model):
+    __tablename__ = 'harga_beras'
+    id = db.Column(db.Integer, primary_key=True)
+    harga = db.Column(db.Float, nullable=False)
     tanggal_ditambahkan = db.Column(db.DateTime, default=datetime.utcnow)
 
 # Fungsi untuk memastikan database dibuat dengan benar
@@ -78,10 +90,36 @@ def reset_database():
         print("Struktur tabel pembayar_zakat:")
         for col in columns:
             print(f"  - {col[1]} ({col[2]})")
+        
+        # Verifikasi struktur tabel harga_beras
+        cursor.execute("PRAGMA table_info(harga_beras)")
+        columns_beras = cursor.fetchall()
+        print("Struktur tabel harga_beras:")
+        for col in columns_beras:
+            print(f"  - {col[1]} ({col[2]})")
         conn.close()
 
 # Reset database saat aplikasi dimulai
 reset_database()
+
+@app.route('/beras_data')
+def beras_data():
+    harga_beras_list = HargaBeras.query.order_by(HargaBeras.tanggal_ditambahkan.desc()).all()
+    return render_template('beras_data.html', harga_beras_list=harga_beras_list)
+
+@app.route('/tambah_beras', methods=['GET', 'POST'])
+def tambah_beras():
+    if request.method == 'POST':
+        try:
+            harga = float(request.form['harga'])
+            new_harga_beras = HargaBeras(harga=harga)
+            db.session.add(new_harga_beras)
+            db.session.commit()
+            flash('Data harga beras berhasil ditambahkan!', 'success')
+            return redirect(url_for('beras_data'))
+        except Exception as e:
+            flash(f'Terjadi kesalahan: {str(e)}', 'error')
+    return render_template('form_beras.html')
 
 @app.route('/')
 def index():
@@ -95,16 +133,46 @@ def index():
 
 @app.route('/tambah', methods=['GET', 'POST'])
 def tambah_pembayar():
+    harga_beras_list = HargaBeras.query.all()
     if request.method == 'POST':
         try:
+            jenis_zakat = request.form['jenis_zakat']
+
+            jumlah_zakat_value = 0.0
+            if 'jumlah_zakat' in request.form and request.form['jumlah_zakat']:
+                jumlah_zakat_value = float(request.form['jumlah_zakat'])
+
+            jumlah_beras_value = None
+            if jenis_zakat == 'Zakat Beras' and 'jumlah_beras' in request.form and request.form['jumlah_beras']:
+                jumlah_beras_value = float(request.form['jumlah_beras'])
+
+            selected_harga_beras_id = None
+            if jenis_zakat == 'Zakat Beras' and 'selected_harga_beras' in request.form and request.form['selected_harga_beras']:
+                selected_harga_beras_id = int(request.form['selected_harga_beras'])
+            
+            tanggal_bayar_str = request.form['tanggal_bayar']
+            tanggal_bayar_obj = datetime.strptime(tanggal_bayar_str, '%Y-%m-%d').date() if tanggal_bayar_str else datetime.utcnow().date()
+
+            nominal_dibayar_value = None
+            if 'nominal_dibayar' in request.form and request.form['nominal_dibayar']:
+                nominal_dibayar_value = float(request.form['nominal_dibayar'])
+
+            jumlah_jiwa_value = 1 # Default value
+            if 'jumlah_jiwa' in request.form and request.form['jumlah_jiwa']:
+                jumlah_jiwa_value = int(request.form['jumlah_jiwa'])
+
             pembayar = PembayarZakat(
                 nama=request.form['nama'],
                 nomor_telepon=request.form['nomor_telepon'],
                 email=request.form['email'],
-                jenis_zakat=request.form['jenis_zakat'],
-                jumlah_zakat=float(request.form['jumlah_zakat']),
-                jumlah_jiwa=int(request.form['jumlah_jiwa']),
-                metode_pembayaran=request.form['metode_pembayaran']
+                jenis_zakat=jenis_zakat,
+                jumlah_zakat=jumlah_zakat_value,
+                jumlah_beras=jumlah_beras_value,
+                selected_harga_beras_id=selected_harga_beras_id,
+                jumlah_jiwa=jumlah_jiwa_value,
+                metode_pembayaran=request.form['metode_pembayaran'],
+                tanggal_bayar=tanggal_bayar_obj,
+                nominal_dibayar=nominal_dibayar_value
             )
             db.session.add(pembayar)
             db.session.commit()
@@ -112,26 +180,54 @@ def tambah_pembayar():
             return redirect(url_for('index'))
         except Exception as e:
             flash(f'Terjadi kesalahan: {str(e)}', 'error')
-    return render_template('form.html')
+    return render_template('form.html', harga_beras_list=harga_beras_list, datetime=datetime)
 
 @app.route('/ubah/<int:id>', methods=['GET', 'POST'])
 def ubah_pembayar(id):
     pembayar = PembayarZakat.query.get_or_404(id)
+    harga_beras_list = HargaBeras.query.all()
     if request.method == 'POST':
         try:
             pembayar.nama = request.form['nama']
             pembayar.nomor_telepon = request.form['nomor_telepon']
             pembayar.email = request.form['email']
             pembayar.jenis_zakat = request.form['jenis_zakat']
-            pembayar.jumlah_zakat = float(request.form['jumlah_zakat'])
-            pembayar.jumlah_jiwa = int(request.form['jumlah_jiwa'])
+
+            if 'jumlah_zakat' in request.form and request.form['jumlah_zakat']:
+                pembayar.jumlah_zakat = float(request.form['jumlah_zakat'])
+            else:
+                pembayar.jumlah_zakat = 0.0 # Default or existing value if empty
+
+            if pembayar.jenis_zakat == 'Zakat Beras' and 'jumlah_beras' in request.form and request.form['jumlah_beras']:
+                pembayar.jumlah_beras = float(request.form['jumlah_beras'])
+            else:
+                pembayar.jumlah_beras = None
+
+            if pembayar.jenis_zakat == 'Zakat Beras' and 'selected_harga_beras' in request.form and request.form['selected_harga_beras']:
+                pembayar.selected_harga_beras_id = int(request.form['selected_harga_beras'])
+            else:
+                pembayar.selected_harga_beras_id = None
+
+            if 'jumlah_jiwa' in request.form and request.form['jumlah_jiwa']:
+                pembayar.jumlah_jiwa = int(request.form['jumlah_jiwa'])
+            else:
+                pembayar.jumlah_jiwa = 1 # Default or existing value if empty
+
             pembayar.metode_pembayaran = request.form['metode_pembayaran']
+            tanggal_bayar_str = request.form['tanggal_bayar']
+            pembayar.tanggal_bayar = datetime.strptime(tanggal_bayar_str, '%Y-%m-%d').date() if tanggal_bayar_str else datetime.utcnow().date()
+
+            if 'nominal_dibayar' in request.form and request.form['nominal_dibayar']:
+                pembayar.nominal_dibayar = float(request.form['nominal_dibayar'])
+            else:
+                pembayar.nominal_dibayar = None # Set to None if empty
+
             db.session.commit()
             flash('Data pembayar berhasil diperbarui!', 'success')
             return redirect(url_for('index'))
         except Exception as e:
             flash(f'Terjadi kesalahan: {str(e)}', 'error')
-    return render_template('form.html', pembayar=pembayar)
+    return render_template('form.html', pembayar=pembayar, harga_beras_list=harga_beras_list, datetime=datetime)
 
 @app.route('/hapus/<int:id>', methods=['POST'])
 def hapus_pembayar(id):
@@ -143,6 +239,11 @@ def hapus_pembayar(id):
     except Exception as e:
         flash(f'Terjadi kesalahan: {str(e)}', 'error')
     return redirect(url_for('index'))
+
+@app.route('/history_pembayaran')
+def history_pembayaran():
+    pembayar_history = PembayarZakat.query.order_by(PembayarZakat.tanggal_bayar.desc()).all()
+    return render_template('history_pembayaran.html', pembayar_history=pembayar_history)
 
 if __name__ == '__main__':
     app.run(debug=True)

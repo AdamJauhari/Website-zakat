@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Data Harga Beras{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title mb-0">Data Harga Beras</h3>
+                <div>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary me-2">Kembali</a>
+                    <a href="{{ url_for('tambah_beras') }}" class="btn btn-success">Tambah Data</a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if harga_beras_list %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Harga</th>
+                                <th>Tanggal Ditambahkan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for harga_beras in harga_beras_list %}
+                            <tr>
+                                <td>{{ harga_beras.id }}</td>
+                                <td>Rp {{ "{:,.2f}".format(harga_beras.harga) }}</td>
+                                <td>{{ harga_beras.tanggal_ditambahkan.strftime('%d/%m/%Y %H:%M') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    Belum ada data harga beras.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

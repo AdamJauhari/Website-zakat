@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}History Pembayaran Zakat{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>History Pembayaran Zakat</h2>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">Kembali ke Dashboard</a>
+</div>
+
+{% if pembayar_history %}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nama</th>
+                <th>Nomor Telepon</th>
+                <th>Email</th>
+                <th>Jenis Zakat</th>
+                <th>Jumlah Zakat</th>
+                <th>Jumlah Beras</th>
+                <th>Jumlah Jiwa</th>
+                <th>Metode Pembayaran</th>
+                <th>Tanggal Bayar</th>
+                <th>Tanggal Ditambahkan (Sistem)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in pembayar_history %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.nama }}</td>
+                <td>{{ p.nomor_telepon }}</td>
+                <td>{{ p.email or '-' }}</td>
+                <td>{{ p.jenis_zakat }}</td>
+                <td>Rp {{ "{:,.2f}".format(p.jumlah_zakat) }}</td>
+                <td>{% if p.jenis_zakat == 'Zakat Beras' and p.jumlah_beras %}{{ "{:,.1f}".format(p.jumlah_beras) }} kg{% else %}-{% endif %}</td>
+                <td>{{ p.jumlah_jiwa }}</td>
+                <td>{{ p.metode_pembayaran }}</td>
+                <td>{{ p.tanggal_bayar.strftime('%d/%m/%Y') }}</td>
+                <td>{{ p.tanggal_ditambahkan.strftime('%d/%m/%Y %H:%M') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">
+    Belum ada history pembayaran zakat.
+</div>
+{% endif %}
+{% endblock %} 
