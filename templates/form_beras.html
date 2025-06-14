@@ -1,20 +1,20 @@
 {% extends "base.html" %}
 
-{% block title %}Tambah Data Harga Beras{% endblock %}
+{% block title %}{{ 'Ubah' if harga_beras else 'Tambah' }} Data Harga Beras{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title mb-0">Tambah Data Harga Beras</h3>
+                <h3 class="card-title mb-0">{{ 'Ubah' if harga_beras else 'Tambah' }} Data Harga Beras</h3>
             </div>
             <div class="card-body">
-                <form method="POST" class="needs-validation" novalidate>
+                <form method="POST" class="needs-validation" novalidate action="{{ url_for('ubah_beras', id=harga_beras.id) if harga_beras else url_for('tambah_beras') }}">
                     <div class="mb-3">
                         <label for="harga" class="form-label">Harga Beras per Kg (Rp)</label>
                         <input type="number" class="form-control" id="harga" name="harga"
-                               value="" required min="0" step="0.01">
+                               value="{{ harga_beras.harga if harga_beras else '' }}" required min="0" step="0.01">
                         <div class="invalid-feedback">
                             Harga beras harus diisi (angka positif).
                         </div>
@@ -23,7 +23,7 @@
                     <div class="d-flex justify-content-between">
                         <a href="{{ url_for('beras_data') }}" class="btn btn-secondary">Kembali</a>
                         <button type="submit" class="btn btn-primary">
-                            Tambah Data Harga
+                            {{ 'Simpan Perubahan' if harga_beras else 'Tambah Data Harga' }}
                         </button>
                     </div>
                 </form>

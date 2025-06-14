@@ -1,6 +1,10 @@
 import sys
 import subprocess
 
+# Add a warning for Python 3.13
+if sys.version_info[:2] == (3, 13):
+    print("Warning: You are using Python 3.13. This version may have compatibility issues with some libraries.")
+
 # Cek dan install requirements jika ada yang belum terinstall
 try:
     import flask
@@ -269,5 +273,32 @@ def export_excel():
     output.seek(0)
     return send_file(output, download_name='history_pembayaran.xlsx', as_attachment=True)
 
+@app.route('/ubah_beras/<int:id>', methods=['GET', 'POST'])
+def ubah_beras(id):
+    harga_beras = HargaBeras.query.get_or_404(id)
+    if request.method == 'POST':
+        try:
+            harga_beras.harga = float(request.form['harga'])
+            db.session.commit()
+            flash('Data harga beras berhasil diperbarui!', 'success')
+            return redirect(url_for('beras_data'))
+        except Exception as e:
+            flash(f'Terjadi kesalahan: {str(e)}', 'error')
+    return render_template('form_beras.html', harga_beras=harga_beras)
+
+@app.route('/hapus_beras/<int:id>', methods=['POST'])
+def hapus_beras(id):
+    harga_beras = HargaBeras.query.get_or_404(id)
+    try:
+        db.session.delete(harga_beras)
+        db.session.commit()
+        flash('Data harga beras berhasil dihapus!', 'success')
+    except Exception as e:
+        flash(f'Terjadi kesalahan: {str(e)}', 'error')
+    return redirect(url_for('beras_data'))
+
 if __name__ == '__main__':
+    # Create database tables if they don't exist
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)

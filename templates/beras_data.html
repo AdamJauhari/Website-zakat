@@ -22,6 +22,7 @@
                                 <th>ID</th>
                                 <th>Harga (Rp/Kg)</th>
                                 <th>Tanggal Ditambahkan</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -30,6 +31,13 @@
                                 <td>{{ harga_beras.id }}</td>
                                 <td>Rp {{ "{:,.2f}".format(harga_beras.harga) }} / Kg</td>
                                 <td>{{ harga_beras.tanggal_ditambahkan.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('ubah_beras', id=harga_beras.id) }}" class="btn btn-sm btn-warning">Ubah</a>
+                                        <button type="button" class="btn btn-sm btn-danger" 
+                                                onclick="konfirmasiHapusBeras({{ harga_beras.id }})">Hapus</button>
+                                    </div>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -44,4 +52,34 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Konfirmasi Hapus Beras -->
+<div class="modal fade" id="modalHapusBeras" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Konfirmasi Hapus Data Beras</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Apakah Anda yakin ingin menghapus data harga beras ini?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <form id="formHapusBeras" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Hapus</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function konfirmasiHapusBeras(id) {
+    const form = document.getElementById('formHapusBeras');
+    form.action = '/hapus_beras/' + id;
+    const modal = new bootstrap.Modal(document.getElementById('modalHapusBeras'));
+    modal.show();
+}
+</script>
 {% endblock %}
