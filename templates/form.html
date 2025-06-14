@@ -41,6 +41,20 @@
                     </div>
 
                     <div class="mb-3">
+                        <label for="jenis_zakat" class="form-label">Jenis Zakat</label>
+                        <select class="form-control" id="jenis_zakat" name="jenis_zakat" required>
+                            <option value="">-- Pilih Jenis Zakat --</option>
+                            <option value="Zakat Fitrah" {% if pembayar and pembayar.jenis_zakat == 'Zakat Fitrah' %}selected{% endif %}>Zakat Fitrah</option>
+                            <option value="Zakat Mal" {% if pembayar and pembayar.jenis_zakat == 'Zakat Mal' %}selected{% endif %}>Zakat Mal</option>
+                            <option value="Zakat Profesi" {% if pembayar and pembayar.jenis_zakat == 'Zakat Profesi' %}selected{% endif %}>Zakat Profesi</option>
+                            <option value="Zakat Lainnya" {% if pembayar and pembayar.jenis_zakat == 'Zakat Lainnya' %}selected{% endif %}>Zakat Lainnya</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Jenis zakat harus dipilih.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
                         <label for="jumlah_zakat" class="form-label">Jumlah Zakat (Rp)</label>
                         <input type="number" class="form-control" id="jumlah_zakat" name="jumlah_zakat"
                                value="{{ pembayar.jumlah_zakat if pembayar else '' }}"
@@ -61,4 +75,4 @@
         </div>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}
