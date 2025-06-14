@@ -22,14 +22,13 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Daftar Pembayar Zakat</h2>
-    <a href="{{ url_for('tambah_pembayar') }}" class="btn btn-primary">
-        Tambah Pembayar Baru
-    </a>
-</div>
-
-<div class="d-flex justify-content-end mb-4">
-    <a href="{{ url_for('history_pembayaran') }}" class="btn btn-info ms-2">History Pembayaran</a>
-    <a href="{{ url_for('beras_data') }}" class="btn btn-info ms-2">Data Beras</a>
+    <div>
+        <a href="{{ url_for('tambah_pembayar') }}" class="btn btn-primary me-2">
+            Tambah Pembayar Baru
+        </a>
+        <a href="{{ url_for('history_pembayaran') }}" class="btn btn-primary me-2">History Pembayaran</a>
+        <a href="{{ url_for('beras_data') }}" class="btn btn-primary">Data Beras</a>
+    </div>
 </div>
 
 {% if pembayar %}

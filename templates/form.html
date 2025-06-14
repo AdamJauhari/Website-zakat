@@ -84,6 +84,16 @@
                         </div>
                     </div>
 
+                    <div class="mb-3" id="jumlahZakatField" style="display: none;">
+                        <label for="jumlah_zakat" class="form-label">Jumlah Zakat (Rp)</label>
+                        <input type="number" class="form-control" id="jumlah_zakat" name="jumlah_zakat"
+                               value="{{ pembayar.jumlah_zakat if pembayar else '' }}"
+                               min="0" step="0.01">
+                        <div class="invalid-feedback">
+                            Jumlah zakat harus diisi (angka positif).
+                        </div>
+                    </div>
+
                     <div class="mb-3">
                         <label for="jumlah_jiwa" class="form-label">Jumlah Jiwa</label>
                         <input type="number" class="form-control" id="jumlah_jiwa" name="jumlah_jiwa"
@@ -100,7 +110,7 @@
                                value="{{ '{:,.2f}'.format(pembayar.jumlah_zakat) if pembayar else '' }}">
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-3" id="nominalDibayarField">
                         <label for="nominal_dibayar" class="form-label">Nominal Dibayar (Rp)</label>
                         <input type="number" class="form-control" id="nominal_dibayar" name="nominal_dibayar"
                                value="{{ pembayar.nominal_dibayar if pembayar and pembayar.nominal_dibayar is not none else '' }}"
@@ -110,7 +120,7 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-3" id="kembalianField">
                         <label for="kembalian" class="form-label">Kembalian (Rp)</label>
                         <input type="text" class="form-control" id="kembalian" readonly>
                     </div>
@@ -162,7 +172,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const totalBayarInput = document.getElementById('total_bayar');
     const nominalDibayarInput = document.getElementById('nominal_dibayar');
     const kembalianInput = document.getElementById('kembalian');
-    const jumlahZakatInput = document.getElementById('jumlah_zakat'); // Hidden field, but we need it here
+    const jumlahZakatInput = document.getElementById('jumlah_zakat'); // Added input for other zakat types
+    const jumlahZakatField = document.getElementById('jumlahZakatField'); // Container for jumlah_zakat input
+    const totalBayarField = document.getElementById('totalBayarField'); // Container for total_bayar input
+    const nominalDibayarField = document.getElementById('nominalDibayarField'); // Container for nominal_dibayar input
+    const kembalianField = document.getElementById('kembalianField'); // Container for kembalian input
 
     function formatRupiah(amount) {
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 2 }).format(amount);
@@ -172,96 +186,127 @@ document.addEventListener('DOMContentLoaded', function() {
         let total = 0;
         if (jenisZakatSelect.value === 'Zakat Beras') {
             const selectedOption = selectedHargaBerasSelect.options[selectedHargaBerasSelect.selectedIndex];
-            const hargaPerJiwa = parseFloat(selectedOption.dataset.harga || '0');
+            const hargaPerKg = parseFloat(selectedOption.dataset.harga || '0');
+            const jumlahBeras = parseFloat(jumlahBerasInput.value) || 0;
             const jumlahJiwa = parseInt(jumlahJiwaInput.value) || 0;
-            total = hargaPerJiwa * jumlahJiwa;
-            // Update hidden jumlah_zakat field for submission if it exists
-            const existingJumlahZakatInput = document.querySelector('[name="jumlah_zakat"]');
-            if (existingJumlahZakatInput) {
-                existingJumlahZakatInput.value = total;
-            }
+            total = hargaPerKg * jumlahBeras * jumlahJiwa;
+            // Update jumlah_zakat input for submission
+            jumlahZakatInput.value = total;
         } else {
-            // For other zakat types, total is manually entered jumlah_zakat
-            const existingJumlahZakatInput = document.querySelector('[name="jumlah_zakat"]');
-            total = parseFloat(existingJumlahZakatInput ? existingJumlahZakatInput.value : '0') || 0;
+            // For other zakat types, total is the manually entered jumlah_zakat
+            total = parseFloat(jumlahZakatInput.value) || 0;
         }
         totalBayarInput.value = formatRupiah(total);
         calculateKembalian();
     }
 
     function calculateKembalian() {
-        const totalBayar = parseFloat(totalBayarInput.value.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
-        const nominalDibayar = parseFloat(nominalDibayarInput.value) || 0;
-        const kembalian = nominalDibayar - totalBayar;
-        kembalianInput.value = formatRupiah(kembalian);
+        // Only calculate kembalian for Zakat Beras
+        if (jenisZakatSelect.value === 'Zakat Beras') {
+            const totalBayar = parseFloat(totalBayarInput.value.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+            const nominalDibayar = parseFloat(nominalDibayarInput.value) || 0;
+            const kembalian = nominalDibayar - totalBayar;
+            kembalianInput.value = formatRupiah(kembalian);
+        } else {
+            kembalianInput.value = formatRupiah(0); // Kembalian is always 0 for other types
+        }
     }
 
-    function toggleBerasFields() {
+    function toggleFields() {
         if (jenisZakatSelect.value === 'Zakat Beras') {
             berasFieldsContainer.style.display = 'block';
-            selectedHargaBerasSelect.required = true;
+            jumlahZakatField.style.display = 'none';
+            totalBayarField.style.display = 'block';
+            nominalDibayarField.style.display = 'block';
+            kembalianField.style.display = 'block';
+
             jumlahBerasInput.required = true;
-            // Make jumlah_zakat readonly when Zakat Beras is selected
-            const existingJumlahZakatInput = document.querySelector('[name="jumlah_zakat"]');
-            if (existingJumlahZakatInput) {
-                existingJumlahZakatInput.readOnly = true;
-                existingJumlahZakatInput.value = ''; // Clear value initially
+            selectedHargaBerasSelect.required = true;
+            jumlahZakatInput.required = false;
+            nominalDibayarInput.required = true; // Nominal dibayar is required for Zakat Beras
+
+            // Set initial value for jumlah_zakat based on existing data if editing
+            if (typeof pembayar !== 'undefined' && pembayar && pembayar.jenis_zakat === 'Zakat Beras') {
+                 // Set selected_harga_beras for edit mode
+                if (pembayar.selected_harga_beras_id) {
+                    const options = selectedHargaBerasSelect.options;
+                    for (let i = 0; i < options.length; i++) {
+                        if (parseInt(options[i].value) === pembayar.selected_harga_beras_id) {
+                            options[i].selected = true;
+                            break;
+                        }
+                    }
+                }
+                // Set jumlah_beras for edit mode
+                 if (pembayar.jumlah_beras) {
+                    jumlahBerasInput.value = pembayar.jumlah_beras;
+                }
+                calculateTotalBayar(); // Recalculate total bayar based on loaded data
+            } else {
+                 // Clear values when switching to Zakat Beras
+                jumlahBerasInput.value = '';
+                selectedHargaBerasSelect.value = '';
+                jumlahZakatInput.value = '';
+                totalBayarInput.value = '';
+                nominalDibayarInput.value = '';
+                kembalianInput.value = '';
             }
-            calculateTotalBayar();
+
         } else {
             berasFieldsContainer.style.display = 'none';
-            selectedHargaBerasSelect.required = false;
+            jumlahZakatField.style.display = 'block';
+            totalBayarField.style.display = 'none';
+            nominalDibayarField.style.display = 'none';
+            kembalianField.style.display = 'none';
+
             jumlahBerasInput.required = false;
-            // Make jumlah_zakat editable when other Zakat is selected
-            const existingJumlahZakatInput = document.querySelector('[name="jumlah_zakat"]');
-            if (existingJumlahZakatInput) {
-                existingJumlahZakatInput.readOnly = false;
+            selectedHargaBerasSelect.required = false;
+            jumlahZakatInput.required = true; // Jumlah zakat is required for other types
+            nominalDibayarInput.required = false; // Nominal dibayar is not required for other types
+
+            // Set initial value for jumlah_zakat based on existing data if editing
+            if (typeof pembayar !== 'undefined' && pembayar && pembayar.jenis_zakat !== 'Zakat Beras') {
+                if (pembayar.jumlah_zakat) {
+                    jumlahZakatInput.value = pembayar.jumlah_zakat;
+                }
+            } else {
+                 // Clear values when switching away from Zakat Beras
+                jumlahZakatInput.value = '';
+                jumlahBerasInput.value = '';
+                selectedHargaBerasSelect.value = '';
+                totalBayarInput.value = '';
+                nominalDibayarInput.value = '';
+                kembalianInput.value = '';
             }
-            // Clear value when switching away from Zakat Beras, recalculate based on manual input for other zakat types
-            calculateTotalBayar(); 
+             calculateTotalBayar(); // Recalculate total bayar (which is just jumlah_zakat) based on loaded data
         }
+         // Always calculate kembalian on toggle, it will be 0 for non-beras
+        calculateKembalian();
     }
 
     // Initial setup
-    toggleBerasFields();
-    calculateTotalBayar();
+    toggleFields();
 
     // Event Listeners
-    jenisZakatSelect.addEventListener('change', toggleBerasFields);
+    jenisZakatSelect.addEventListener('change', toggleFields);
     selectedHargaBerasSelect.addEventListener('change', calculateTotalBayar);
+    jumlahBerasInput.addEventListener('input', calculateTotalBayar);
     jumlahJiwaInput.addEventListener('input', calculateTotalBayar);
+    jumlahZakatInput.addEventListener('input', calculateTotalBayar); // Listen to changes on the new input
     nominalDibayarInput.addEventListener('input', calculateKembalian);
 
-    // If on an edit page, populate fields
+    // If on an edit page, populate fields and trigger calculations
     if (typeof pembayar !== 'undefined' && pembayar) {
-        // Set initial total_bayar for edit page based on existing jumlah_zakat
-        if (pembayar.jenis_zakat === 'Zakat Beras') {
-             // Set selected_harga_beras for edit mode
-            if (pembayar.selected_harga_beras_id) {
-                const options = selectedHargaBerasSelect.options;
-                for (let i = 0; i < options.length; i++) {
-                    if (parseInt(options[i].value) === pembayar.selected_harga_beras_id) {
-                        options[i].selected = true;
-                        break;
-                    }
-                }
-            }
-             calculateTotalBayar();
-        } else {
-            totalBayarInput.value = formatRupiah(pembayar.jumlah_zakat || 0);
-        }
+        // The toggleFields function now handles initial population based on zakat type
+        // We just need to ensure the correct fields are shown/hidden on load
+        toggleFields();
 
-        // Set nominal_dibayar if available
-        // Assuming you might add nominal_dibayar to your PembayarZakat model later
-        // if (pembayar.nominal_dibayar) { 
-        //     nominalDibayarInput.value = pembayar.nominal_dibayar;
-        // }
-        
         // Set tanggal_bayar
         if (pembayar.tanggal_bayar) {
             document.getElementById('tanggal_bayar').value = new Date(pembayar.tanggal_bayar).toISOString().split('T')[0];
         }
-        calculateKembalian(); // Calculate initial kembalian if nominal_dibayar is set
+         // Calculate kembalian after nominal_dibayar is potentially set by toggleFields
+        calculateKembalian();
     }
 });
 </script>

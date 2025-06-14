@@ -152,8 +152,7 @@ def tambah_pembayar():
             else:
                 if 'jumlah_zakat' in request.form and request.form['jumlah_zakat']:
                     jumlah_zakat_value = float(request.form['jumlah_zakat'])
-                if 'nominal_dibayar' in request.form and request.form['nominal_dibayar']:
-                    nominal_dibayar_value = float(request.form['nominal_dibayar'])
+                nominal_dibayar_value = jumlah_zakat_value
 
             tanggal_bayar_str = request.form['tanggal_bayar']
             tanggal_bayar_obj = datetime.strptime(tanggal_bayar_str, '%Y-%m-%d').date() if tanggal_bayar_str else datetime.utcnow().date()
@@ -217,7 +216,10 @@ def ubah_pembayar(id):
             if 'nominal_dibayar' in request.form and request.form['nominal_dibayar']:
                 pembayar.nominal_dibayar = float(request.form['nominal_dibayar'])
             else:
-                pembayar.nominal_dibayar = None # Set to None if empty
+                if pembayar.jenis_zakat != 'Zakat Beras':
+                    pembayar.nominal_dibayar = pembayar.jumlah_zakat
+                else:
+                    pembayar.nominal_dibayar = None # Set to None if empty
 
             db.session.commit()
             flash('Data pembayar berhasil diperbarui!', 'success')
