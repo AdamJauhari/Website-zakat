@@ -1,5 +1,8 @@
 import sys
 import subprocess
+import os
+import shutil
+import sqlite3
 
 # Cek versi Python
 if sys.version_info >= (3, 13):
@@ -24,6 +27,18 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import os
 
+# Hapus direktori instance jika ada
+instance_dir = 'instance'
+if os.path.exists(instance_dir):
+    try:
+        shutil.rmtree(instance_dir)
+        print(f"Direktori instance dihapus: {instance_dir}")
+    except Exception as e:
+        print(f"Gagal menghapus direktori instance: {e}")
+    
+# Buat direktori instance baru
+os.makedirs(instance_dir, exist_ok=True)
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///zakat.db'
@@ -31,17 +46,40 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+# Definisi model
 class PembayarZakat(db.Model):
+    __tablename__ = 'pembayar_zakat'
     id = db.Column(db.Integer, primary_key=True)
     nama = db.Column(db.String(100), nullable=False)
     nomor_telepon = db.Column(db.String(15), nullable=False)
     email = db.Column(db.String(100))
-    jenis_zakat = db.Column(db.String(50), nullable=False)  # Jenis zakat
+    jenis_zakat = db.Column(db.String(50), nullable=False)
     jumlah_zakat = db.Column(db.Float, nullable=False)
     tanggal_ditambahkan = db.Column(db.DateTime, default=datetime.utcnow)
 
-with app.app_context():
-    db.create_all()
+# Fungsi untuk memastikan database dibuat dengan benar
+def reset_database():
+    with app.app_context():
+        # Hapus semua tabel terlebih dahulu
+        db.drop_all()
+        print("Semua tabel dihapus.")
+        
+        # Buat tabel baru
+        db.create_all()
+        print("Database berhasil dibuat dengan struktur terbaru.")
+        
+        # Verifikasi struktur tabel
+        conn = sqlite3.connect(os.path.join(instance_dir, 'zakat.db'))
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info(pembayar_zakat)")
+        columns = cursor.fetchall()
+        print("Struktur tabel pembayar_zakat:")
+        for col in columns:
+            print(f"  - {col[1]} ({col[2]})")
+        conn.close()
+
+# Reset database saat aplikasi dimulai
+reset_database()
 
 @app.route('/')
 def index():
