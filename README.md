@@ -18,40 +18,33 @@ Aplikasi web untuk mengelola data pembayar zakat, melacak jumlah zakat yang terk
 - Python 3.8 atau lebih baru
 - pip (Python package manager)
 
-## Instalasi
+## Cara Instalasi dan Menjalankan Aplikasi
 
-1. Clone repositori ini atau download sebagai ZIP
-2. Buka terminal/command prompt
-3. Navigasi ke direktori proyek
-4. Buat virtual environment (opsional tapi direkomendasikan):
-   ```bash
-   python -m venv venv
+### Cara Mudah (Otomatis)
+
+#### Windows
+1. Klik dua kali pada file `install.bat`
+2. Aplikasi akan otomatis terinstal dan berjalan
+
+#### Linux/macOS
+1. Buka terminal pada direktori aplikasi
+2. Jalankan perintah: `chmod +x install.sh`
+3. Jalankan perintah: `./install.sh`
+4. Aplikasi akan otomatis terinstal dan berjalan
+
+### Cara Manual
+
+1. Pastikan Python 3.7 atau lebih baru sudah terinstal
+2. Buka terminal/command prompt pada direktori aplikasi
+3. Instal dependensi dengan perintah:
    ```
-5. Aktifkan virtual environment:
-   - Windows:
-     ```bash
-     venv\Scripts\activate
-     ```
-   - Linux/Mac:
-     ```bash
-     source venv/bin/activate
-     ```
-6. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
+   pip install -e .
    ```
-
-## Menjalankan Aplikasi
-
-1. Pastikan virtual environment aktif
-2. Jalankan aplikasi:
-   ```bash
+4. Jalankan aplikasi dengan perintah:
+   ```
    python app.py
    ```
-3. Buka browser dan akses:
-   ```
-   http://localhost:5000
-   ```
+5. Buka browser dan akses `http://127.0.0.1:5000`
 
 ## Struktur Proyek
 

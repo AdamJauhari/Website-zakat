@@ -1,0 +1,4 @@
+include zakat.db
+recursive-include static *
+recursive-include templates *
+include requirements.txt 
