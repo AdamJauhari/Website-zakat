@@ -1,26 +1,13 @@
 import sys
 import subprocess
-import os
-import shutil
-import sqlite3
-import io
-import pandas as pd
-from flask import send_file
 
-# Cek versi Python
-if sys.version_info >= (3, 13):
-    print('ERROR: Aplikasi ini belum mendukung Python 3.13 atau lebih baru karena masalah kompatibilitas library SQLAlchemy.')
-    print('Silakan gunakan Python 3.12 atau lebih rendah.')
-    sys.exit(1)
-
-if sys.version_info < (3, 7):
-    print('ERROR: Aplikasi ini membutuhkan minimal Python 3.7.')
-    sys.exit(1)
-
+# Cek dan install requirements jika ada yang belum terinstall
 try:
     import flask
+    import pandas
+    import sqlalchemy
 except ImportError:
-    print('Flask belum terinstall. Menginstall requirements...')
+    print('Beberapa requirements belum terinstall. Menginstall requirements...')
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt'])
     print('Requirements terinstall. Silakan jalankan ulang script ini.')
     sys.exit(1)
@@ -29,6 +16,10 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, f
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import os
+import sqlite3
+import io
+import pandas as pd
+from flask import send_file
 
 # Hapus direktori instance jika ada
 # instance_dir = 'instance'
