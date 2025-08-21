@@ -2,14 +2,6 @@
 
 Aplikasi web untuk mengelola data pembayar zakat, melacak jumlah zakat yang terkumpul, dan melakukan operasi CRUD pada data pembayar.
 
-## Keterangan
-Program ini dibuat untuk menyelesaikan tugas Mata Kuliah Praktikum Pemrograman Berorientasi Objek.
-
-## Anggota Kelompok
-- Adam Arias Jauhari
-- MHD Aldy Syahputra
-- Vicky Maulana Romadan
-
 ## Fitur
 
 - Menampilkan daftar pembayar zakat
